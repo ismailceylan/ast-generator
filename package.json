@@ -1,0 +1,46 @@
+{
+  "name": "@iceylan/ast-generator",
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "description": "Creates meaningful nodes by performing logical and sequential reading operations on string arrays.",
+  "main": "./dist/ast-generator.umd.cjs",
+  "module": "./dist/ast-generator.js",
+  "exports": {
+    ".": {
+      "import": "./dist/ast-generator.js",
+      "require": "./dist/ast-generator.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "release": "standard-version",
+    "publish-package": "npm publish --access=public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ismailceylan/ast-generator.git"
+  },
+  "keywords": [
+    "abstract syntax tree",
+    "ast",
+    "parser",
+    "javascript",
+    "markdown parse",
+    "html parse",
+    "css parse"
+  ],
+  "author": "Ismail Ceylan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ismailceylan/ast-generator/issues"
+  },
+  "homepage": "https://github.com/ismailceylan/ast-generator#readme",
+  "devDependencies": {
+    "vite": "^5.3.1"
+  }
+}
