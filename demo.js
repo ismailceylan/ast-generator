@@ -1,3 +1,19 @@
-import AsciiByteStream from "@iceylan/ascii-byte-stream";
+import { Parser, component } from "./lib";
 
-console.log(new AsciiByteStream( "naber"));
+const htmlParser = new Parser(
+{
+	components:
+	{
+		bold: component(
+		{
+			structure:
+			[
+				
+			]
+		})
+	}
+});
+
+const ast = htmlParser.parse( "lorem <b>ipsum</b> dolor." );
+
+console.log( htmlParser, ast );

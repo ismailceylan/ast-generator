@@ -13,7 +13,8 @@ npm install @iceylan/ast-generator
 ## Usage
 
 ```javascript
-import Parser, { component, exact, skip, multi, until, optional, not, space } from "@iceylan/ast-generator";
+import { Parser, component, exact, skip, multi, until, optional, not, space }
+	from "@iceylan/ast-generator";
 
 const parser = new Parser(
 {
