@@ -38,7 +38,7 @@ const ast = MarkdownParser.parse( "Hello **World**" );
 ```
 
 ## What Is Parser
-A parser is like an engine that takes components and runs them in order. Under the hood, it is a recursive descent parser. It uses an ASCII byte stream to recursively loop through the given raw string or document (however you call it). Even if a component matches, it consumes bytes as long as it needs, and the parser will continue to read the stream from where the component left off and continue trying to find components.
+A parser is like an engine that takes components and runs them in order. Under the hood, it is a recursive descent parser. It uses [AsciiByteStream](https://github.com/ismailceylan/ascii-byte-stream) library to recursively loop through the given raw string or document (however you call it). Even if a component matches, it consumes bytes as long as it needs, and the parser will continue to read the stream from where the component left off and continue trying to find components.
 
 ## What Is Component
 A component represents any complex structure of the given document. It can be a Markdown component, HTML tag, for loop or a function in JavaScript, or a selector and its definition in CSS. Even further, argument definitions of a function in JavaScript can be a component.
@@ -58,7 +58,7 @@ If the parser never finds any component, it will put the current byte into the n
 ## What Is Sequence
 Sequences are named functions that create `Sequence` instances when called. They are facades of that class and perform operations on the stream, scope, and AST node of the component in specialized ways.
 
-For example, `match` tries to match the given target. It doesn't consume bytes; it just tries to match. Another one, `consume`, will eat all the bytes if they match the given target.
+For example, `match` tries to match the given target. It doesn't consume bytes; it just tries to match. Another one, `consume`, will eat all the bytes as long as if it match the given target.
 
 With sequences, we can remodel the steps of a structure.
 
@@ -70,30 +70,30 @@ Sequences have modifier methods to give them shape. For example, `as`, `name`, `
 AST stands for Abstract Syntax Tree. It will be baked by the parser after parsing process and it is a data structure that tokenizes the structure of the document. By traversing the AST we can access every section of the document, including where they start and end.
 
 ## What Is Scope
-Scope is a place where sequences can store their results. It is accessible by all the sequences in the component sequentially. That means, the one that comes before cannot access the value of the next one because its not evaluated yet. With modifier methods, we can access the scope and make the sequence dependant some other sequences results. Performing such operations with Regular Expressions can sometimes be difficult.
+Scope is a place where sequences can store their results. It is accessible by all the sequences in the component sequentially. That means, the one that comes before cannot access the result of the next one because its not evaluated yet. With modifier methods, we can access the scope and make the sequence dependant some other sequences results. Performing such operations with Regular Expressions can sometimes be difficult.
 
 ## What Is Node Stack
-Node stack is a class to manage sequentially created nodes. It extends native JavaScript Array constructor and that makes it array-like. We can push, pop, and get nodes from the stack. Additionally we can append any amount of bytes to latest text node with it. If the latest node in the stack is not a text node then a one will be created with the given bytes. It also support rollback for text nodes. That enables us to clean up the mess for the failed components.
+Node stack is a class to manage sequentially created nodes. It extends native JavaScript Array constructor and that makes it array-like. It can push, pop, and get nodes from the stack. Additionally it can append any amount of bytes to latest text node with it. If the latest node in the stack is not a text node then a one will be created with the given bytes. It also support rollback for text nodes. That enables to clean up the mess for the failed components. We never see and manupulate this object. Its completely managed by the parser but knowing how it works could make difference.
 
 ## What Is Ascii Byte Stream
-It is a library that allows us to handle raw string as streams. It supports cursor mechanism and with this we can easily operate on the bytes of the raw without losing bytes. Its easily adopt any kind of looping, looking forward, searching targets, consuming conditionally etc. Every sequence will have the common stream object to operate and consume bytes of it.
+It is a library that allows us to handle raw string as streams. It supports cursor mechanism and with this we can easily operate on the bytes of the raw strings without losing bytes. Its easily adopt any kind of looping, looking forward, searching targets, consuming conditionally etc. Every sequence will have the common stream object to operate and consume bytes of it. It starts counting from 0 and zero points first byte of the stream. This is the another part of the parser that we won't involve in detail but, again, knowing how it works is important.
 
 ## Which Are The Sequence Methods
 There are many of them to handle different kinds of scenarios. Let's see them in detail.
 
 ### match
-Its a sequence that tries to match the given target. It doesn't consume bytes. That means the stream cursor won't move. It just tries to match. Accepts a one or multibyte string or one of the situation symbols like `newline`, `endline`, `beginning` or `ending`. It also accepts an array of them. With that, it will be like `or` operator in regular expressions, it will successful if it match one of the items in the array.
+Its a sequence that tries to match the given target. It doesn't consume bytes. That means the stream cursor won't move. It just tries to match. Its kind of a `LookAheadPositive` concept in regular expressions. Accepts a one or multibyte string or one of the situation symbols like `newline`, `endline`, `beginning` or `ending`. It also accepts an array of them. With that, it will be like `or` operator in regular expressions, it will successful if it match one of the items in the array.
 
 ```js
 new Parser({ components:
 [
 	component( "complex", [
 		match( 'ip' ), // true
-		match( 'ip' ), // true, cursor doesn't move, so it will match again
+		match( 'ip' ), // true, cursor doesn't moved, so it will match again
 	])
 ]});
 
-//     v  <=  cursor is here
+//     v  <=  cursor was here
 `Lorem ipsum dolor.`
 //     ^  <=  cursor is still here after executing sequence
 ```
@@ -110,7 +110,7 @@ match([ beginning, newline ]) // returns beginning instead of true
 
 `AsciiByteStream` library starts counting from 0 and zero points the first byte's itself, not before it. So, `beginning` constant packages this information and makes it portable by turning it into a symbol.
 
-Another important point is `match` sequence always returns `failed` symbol if it doesn't match. It always return `true` for `string` literal targets and returns always situated symbols' itself like `newline`, `endline`, `beginning` or `ending` if it matches one of them. This is important because it will be step in the scene when we need to add another sequence that uses conditional modifiers.
+Another important point is `match` sequence always returns `failed` symbol if it doesn't match. It always return `true` for `string` literal targets and returns always situated symbols' itself like `newline`, `endline`, `beginning` or `ending` if it matches one of them. This is important because this results will be placed on the scope of the component and conditional modifiers like `if` or `as` will consume this results. It is important to know what you will be dealing with in the future.
 
 <!-- For example, `as` method will create a sub-ast node and put captured data by sequence into it and this sub node will be placed into component's ast node.
 
