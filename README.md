@@ -85,32 +85,67 @@ There are many of them to handle different kinds of scenarios. Let's see them in
 Its a sequence that tries to match the given target. It doesn't consume bytes. That means the stream cursor won't move. It just tries to match. Its kind of a `LookAheadPositive` concept in regular expressions. Accepts a one or multibyte string or one of the situation symbols like `newline`, `endline`, `beginning` or `ending`. It also accepts an array of them. With that, it will be like `or` operator in regular expressions, it will successful if it match one of the items in the array.
 
 ```js
-new Parser({ components:
-[
-	component( "complex", [
-		match( 'ip' ), // true
-		match( 'ip' ), // true, cursor doesn't moved, so it will match again
-	])
-]});
+match( 'ip' ) // true
 
-//     v  <=  cursor was here
-`Lorem ipsum dolor.`
-//     ^  <=  cursor is still here after executing sequence
+//         v  <=  cursor was here
+	`Lorem ipsum dolor.`
+//         ^  <=  cursor is still here after executing sequence
+
+match( 'ip' ) // true, cursor doesn't moved, so it will match again
 ```
 
 We can match `newline` or `endline`, `beginning` or `ending`. Let's just show the logic, don't bother with exact code anymore.
 
 ```js
-// v  <=  cursor is here
+match([ beginning, newline ]) // returns beginning instead of true
+
+// v  <=  cursor was here
   `Lorem ipsum dolor.`
 // ^  <=  it's still here
-
-match([ beginning, newline ]) // returns beginning instead of true 
 ```
 
 `AsciiByteStream` library starts counting from 0 and zero points the first byte's itself, not before it. So, `beginning` constant packages this information and makes it portable by turning it into a symbol.
 
-Another important point is `match` sequence always returns `failed` symbol if it doesn't match. It always return `true` for `string` literal targets and returns always situated symbols' itself like `newline`, `endline`, `beginning` or `ending` if it matches one of them. This is important because this results will be placed on the scope of the component and conditional modifiers like `if` or `as` will consume this results. It is important to know what you will be dealing with in the future.
+Another important point is `match` sequence always returns `failed` symbol if it doesn't match. If it matches it always return `true` for primitive `string` and if the target is one of the situation symbols like `newline`, `endline`, `beginning` or `ending` then it returns the matched symbol. Results will be placed on the scope of the component and conditional modifiers like `if` or `as` will consume this results. It is important to know what you will be dealing with in the future.
+
+### exact
+This sequence will match exactly the given target and skip them. Its kind of literal character matching known from regex.
+
+```js
+exact( "ip" ) // returns true
+
+//     v  <= cursor was here
+`Lorem ipsum dolor.`
+//       ^  <= cursor moved here
+
+exact( "sum" ) // returns true
+```
+
+We can define multiple target to match. In such a situation matching will be successful when any target matches. It's kind of like the "or" statement known from Regex.
+
+```js
+exact([ "ip", "su" ]) // returns true
+
+//     v  <= cursor was here
+`Lorem ipsum dolor.`
+//       ^  <= cursor moved here
+```
+
+`exact` sequence works a little bit different than `match` when using situation symbols.
+
+If we want to match the `beginning` of the document it will look if stream cursor is 0. If it is, result will be the beginning symbol but cursor won't be moved because, beginning is not a byte and can't be eaten. As you realized already `match` will work same way. Its up to you to choice which one to use.
+
+```js
+exact( beginning ) // returns beginning
+
+// v  <= cursor was here
+  `Lorem`
+// ^  <= cursor still here
+
+match( beginning ) // returns beginning, cursor wasn't moved
+```
+
+
 
 <!-- For example, `as` method will create a sub-ast node and put captured data by sequence into it and this sub node will be placed into component's ast node.
 
