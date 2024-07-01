@@ -58,7 +58,7 @@ If the parser never finds any component, it will put the current byte into the n
 ## What Is Sequence
 Sequences are named functions that create `Sequence` instances when called. They are facades of that class and perform operations on the stream, scope, and AST node of the component in specialized ways.
 
-For example, `match` tries to match the given target. It doesn't consume bytes; it just tries to match. Another one, `consume`, will eat all the bytes as long as if it match the given target.
+For example, `match` tries to match the given target. It doesn't consume bytes; it just tries to match. Another one, `consume`, will eat all the bytes as long as if it doesn't match the given target.
 
 With sequences, we can remodel the steps of a structure.
 
@@ -87,14 +87,14 @@ Its a sequence that tries to match the given target. It doesn't consume bytes. T
 ```js
 match( 'ip' ) // true
 
-//         v  <=  cursor was here
-	`Lorem ipsum dolor.`
-//         ^  <=  cursor is still here after executing sequence
+//     v  <=  cursor was here
+`Lorem ipsum dolor.`
+//     ^  <=  cursor is still here after executing sequence
 
 match( 'ip' ) // true, cursor doesn't moved, so it will match again
 ```
 
-We can match `newline` or `endline`, `beginning` or `ending`. Let's just show the logic, don't bother with exact code anymore.
+We can match `newline` or `endline`, `beginning` or `ending`.
 
 ```js
 match([ beginning, newline ]) // returns beginning instead of true
@@ -142,7 +142,7 @@ exact( beginning ) // returns beginning
   `Lorem`
 // ^  <= cursor still here
 
-match( beginning ) // returns beginning, cursor wasn't moved
+match( beginning ) // returns beginning, cursor still at the same position
 ```
 
 
