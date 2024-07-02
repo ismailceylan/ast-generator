@@ -79,7 +79,7 @@ Node stack is a class to manage sequentially created nodes. It extends the nativ
 It is a [library](https://github.com/ismailceylan/ascii-byte-stream) that allows us to handle raw strings as streams. It supports a cursor mechanism, allowing us to operate on the bytes of the raw strings without losing bytes. It easily adapts to any kind of looping, looking forward, searching targets, consuming conditionally, etc. Every sequence will have the common stream object to operate and consume bytes. The stream starts counting from 0, with zero pointing to the first byte of the stream. This is another part of the parser that we won't go into detail about, but again, knowing how it works is important.
 
 ## Constants And Symbols
-There are some constants and symbols that we can use with these methods. Let's briefly explain what they are and what they do.
+There are some constants and symbols that we can use with sequence methods. Let's briefly explain what they are and what they do.
 
 ### beginning
 Represents the start of the document. In our designed system, this corresponds to the zeroth character. This means that the cursor showing the first character also represents the beginning of the document. To tell a sequence to match the start of the document, we simply pass this symbol.
@@ -99,7 +99,7 @@ A constant array holding all known whitespace characters. These characters are `
 ### failed
 This symbol is returned and also placed on the scope when sequences fail to fulfill their committed tasks. For example, if a sequence declares that it will activate when the preceding sequence fails, we can use the expression `until(target).is("beforeName", failed)`.
 
-## Which Are The Sequence Methods
+## Sequence Methods
 There are many sequence methods to handle different kinds of scenarios. Let's see them in detail.
 
 ### match
@@ -125,9 +125,7 @@ match([ beginning, newline ]) // returns beginning instead of true
 // ^  <=  it's still here
 ```
 
-`AsciiByteStream` library starts counting from 0, and zero points to the first byte itself, not before it. The `beginning` constant encapsulates this information, making it portable by turning it into a symbol.
-
-Another important point is that the `match` sequence always returns the `failed` symbol if it doesn't match. If it matches, it always returns `true` for primitive strings, and if the target is one of the situation symbols like `newline`, `endline`, `beginning`, or `ending`, then it returns the matched symbol. Results will be placed in the scope of the component, and conditional modifiers like `if` or `as` will consume these results. It is important to know what you will be dealing with in the future.
+The `match` sequence always returns the `failed` symbol if it doesn't match. If it matches, it always returns `true` for primitive strings, and if the target is one of the situation symbols like `newline`, `endline`, `beginning`, or `ending`, then it returns the matched symbol. The return value of the sequence will be placed in the scope of the component, and conditional modifiers like `if` or `as` will consume these results. It is important to know what you will be dealing with in the future.
 
 ### exact
 This sequence will match exactly the given target and skip them. It's a form of literal character matching, similar to what's known from regex.
@@ -140,9 +138,13 @@ exact( "ip" ) // returns true
 //       ^  <= cursor moved here
 
 exact( "sum" ) // returns true
+
+//       v  <= cursor was here
+`Lorem ipsum dolor.`
+//          ^  <= cursor moved here
 ```
 
-We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regex.
+We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regex. It matches only one time and stops trying to match other targets.
 
 ```js
 exact([ "ip", "su" ]) // returns true
@@ -154,7 +156,7 @@ exact([ "ip", "su" ]) // returns true
 
 The `exact` sequence works a little bit differently than `match` when using situation symbols.
 
-If we want to match the `beginning` of the document, it will check if the stream cursor is at 0. If it is, the result will be the `beginning` symbol, but the cursor won't be moved because the beginning is not a byte and can't be consumed. As you have already realized, `match` will work the same way. It's up to you to choose which one to use.
+If we want to match the `beginning` of the document, it will check if the stream cursor is at 0. If it is, the result will be the `beginning` symbol, but the cursor won't be moved because the beginning is not a byte, its just a situation and can't be consumed. As you have already realized, `match` will work the same way. It's up to you to choose which one to use in such a situation.
 
 ```js
 exact( beginning ) // returns beginning
@@ -173,7 +175,7 @@ The `consume` sequence consumes all the bytes as long as they match one of the g
 // v  <= cursor was here
  `Loooooorem ipsum dolor.`
 
-consume( "ip" ) // returns "oooooo"
+consume( "o" ) // returns "oooooo"
 
 //         v  <= cursor moved here
 `Loooooorem ipsum dolor.`
@@ -198,9 +200,9 @@ consume( space ) // returns "\s\t\s\t\s\t\n\n"
 //                    ^  <= cursor moved here
 ```
 
-The `space` constant is a group of all known whitespace characters, as we mentioned before. With this, it consumes every kind of whitespace and stops at the first non-whitespace character.
+The `space` constant is an array of all known whitespace characters, as we mentioned before. With this, it consumes every kind of whitespace and stops at the first non-whitespace character.
 
-Situation symbols like `beginning`, `ending`, `newline`, or `endline` are not meaningful for the `consume` sequence.
+Situation symbols like `beginning`, `ending`, `newline`, or `endline` are not meaningful for the `consume` sequence, so you shouldn't use them over this method.
 
 <!-- For example, `as` method will create a sub-ast node and put captured data by sequence into it and this sub node will be placed into component's ast node.
 
