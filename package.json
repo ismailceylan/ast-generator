@@ -5,7 +5,7 @@
   "files": [
     "dist"
   ],
-  "description": "Creates meaningful nodes by performing logical and sequential reading operations on string arrays.",
+  "description": "Creates tokenized nodes by performing logical and sequential reading operations on string arrays.",
   "main": "./dist/ast-generator.umd.cjs",
   "module": "./dist/ast-generator.js",
   "exports": {
