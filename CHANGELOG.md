@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/ismailceylan/ast-generator/compare/v0.0.2...v0.0.3) (2024-07-03)
+
+
+### Features
+
+* add capability of matching with endline constant ([92e695c](https://github.com/ismailceylan/ast-generator/commit/92e695c8907e72ddcc045fc781b57bcaa3097095))
+* add support for matching with any of the multiple given targets ([c5657ae](https://github.com/ismailceylan/ast-generator/commit/c5657aed1a16d891ec5f5350fa1e6a9875e1b44b))
+* **exact:** add support for multiple targets for "or" operation ([5f1fa8a](https://github.com/ismailceylan/ast-generator/commit/5f1fa8ad17e610a633b7f40aee4b4dc98cb66748))
+* **exact:** add support for situation symbols ([1b223c9](https://github.com/ismailceylan/ast-generator/commit/1b223c93fb53c099b47438995545279fd774c3cb))
+
+
+### Bug Fixes
+
+* **sequences:** handle endline symbol properly ([6fa4936](https://github.com/ismailceylan/ast-generator/commit/6fa493625de79a48bb82e79ef7b769fe98aa02c1))
+
 ### 0.0.2 (2024-06-28)
 
 
