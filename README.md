@@ -1,7 +1,7 @@
 # Abstract Syntax Tree Generator
-This JavaScript library creates tokenized nodes by performing logical and sequential reading operations on string arrays. For example, HTML, Markdown, and any other language can be parsed into AST by this library.
+This JavaScript library creates tokenized nodes by performing logical and sequential reading operations on string arrays. HTML, Markdown, Math formulas or any other language (or pattern) can be parsed into AST by this library.
 
-It provides a set of methods to remodel the structure of the language step by step. It's pretty similar to the regular expression mechanism, but with this library, plenty of possibilities are unlocked.
+It provides a set of methods to remodel the structure of the complex structures step by step. It's pretty similar to the regular expression mechanism, but with this library, plenty of possibilities are unlocked.
 
 ## Installation
 
@@ -144,10 +144,10 @@ exact( "sum" ) // returns true
 //          ^  <= cursor moved here
 ```
 
-We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regex. It matches only one time and stops trying to match other targets.
+We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regex. It matches only one time and stops trying to match other targets. It returns the matched target as a result.
 
 ```js
-exact([ "ip", "su" ]) // returns true
+exact([ "ip", "su" ]) // returns "ip"
 
 //     v  <= cursor was here
 `Lorem ipsum dolor.`
@@ -173,12 +173,12 @@ The `consume` sequence consumes all the bytes as long as they match one of the g
 
 ```js
 // v  <= cursor was here
- `Loooooorem ipsum dolor.`
+ `Loooooo ipsum dolor.`
 
 consume( "o" ) // returns "oooooo"
 
-//         v  <= cursor moved here
-`Loooooorem ipsum dolor.`
+//      v  <= cursor moved here
+`Loooooo ipsum dolor.`
 
 consume( space ) // returns " "
 
