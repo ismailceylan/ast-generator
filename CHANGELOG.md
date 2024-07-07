@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/ismailceylan/ast-generator/compare/v0.0.3...v0.0.4) (2024-07-07)
+
+
+### Features
+
+* **until:** add multiple target support ([a50ab74](https://github.com/ismailceylan/ast-generator/commit/a50ab7467fd682b4aa590cc6acb535245b58a8e0))
+
+
+### Bug Fixes
+
+* **exact:** prevent endline from being treated like newline ([e03384f](https://github.com/ismailceylan/ast-generator/commit/e03384fa6bfc10cde9979efc636291bc892bdcf4))
+* **node-stack:** creating new text node ([e2d9439](https://github.com/ismailceylan/ast-generator/commit/e2d94397efdcd09754f2d8abb067e76cc696da83))
+* **parser:** prevent infinite loop due to unconsumed bytes ([0244881](https://github.com/ismailceylan/ast-generator/commit/02448818fa8262e74af890f1ab52832241ac0d3e))
+
 ### [0.0.3](https://github.com/ismailceylan/ast-generator/compare/v0.0.2...v0.0.3) (2024-07-03)
 
 
