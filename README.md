@@ -128,7 +128,7 @@ match([ beginning, newline ]) // returns beginning instead of true
 The `match` sequence always returns the `failed` symbol if it doesn't match. If it matches, it always returns `true` for primitive strings, and if the target is one of the situation symbols like `newline`, `endline`, `beginning`, or `ending`, then it returns the matched symbol. The return value of the sequence will be placed in the scope of the component, and conditional modifiers like `if` or `as` will consume these results. It is important to know what you will be dealing with in the future.
 
 ### exact
-This sequence will match exactly the given target and skip them. It's a form of literal character matching, similar to what's known from regex.
+This sequence will match exactly the given target and skip them. It's a form of literal character matching like `/foo/` in regular expressions.
 
 ```js
 exact( "ip" ) // returns true
@@ -144,7 +144,7 @@ exact( "sum" ) // returns true
 //          ^  <= cursor moved here
 ```
 
-We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regex. It matches only one time and stops trying to match other targets. It returns the matched target as a result.
+We can define multiple targets to match. In such a situation, matching will be successful when any target matches. It's similar to the "or" statement known from regular expressions like `/foo|bar/`. It matches only one time and stops trying to match other targets. It returns the matched target as a result.
 
 ```js
 exact([ "ip", "su" ]) // returns "ip"
@@ -182,8 +182,8 @@ consume( "o" ) // returns "oooooo"
 
 consume( space ) // returns " "
 
-//          v  <= cursor moved here
-`Loooooorem ipsum dolor.`
+//       v  <= cursor moved here
+`Loooooo ipsum dolor.`
 ```
 
 It supports multiple targets as well, making it similar to an `or` statement in regular expressions like `/(target|target)*/`.
@@ -203,6 +203,75 @@ consume( space ) // returns "\s\t\s\t\s\t\n\n"
 The `space` constant is an array of all known whitespace characters, as we mentioned before. With this, it consumes every kind of whitespace and stops at the first non-whitespace character.
 
 Situation symbols like `beginning`, `ending`, `newline`, or `endline` are not meaningful for the `consume` sequence, so you shouldn't use them over this method.
+
+
+### until
+
+The `until` sequence consumes all the bytes from the current position until it reaches something other than the given targets. It's similar to the `LookAheadNegative` concept in regular expressions.
+
+```js
+// v  <= cursor is here
+`Lorem ipsum dolor.`
+```
+
+```js
+until( " " )
+// returns "rem"
+```
+
+It will move the cursor to the position where it stopped.
+
+```js
+//    v  <= cursor moved here
+`Lorem ipsum dolor.`
+```
+
+It supports multiple targets as well. For example, `space` is an array of known whitespace characters.
+
+```js
+until( space ) // returns " ipsum"
+```
+
+With this, we can ensure that we capture all the data until any kind of space, including `newline` or `tab`.
+
+```js
+//          v  <= cursor moved here
+`Lorem ipsum dolor.`
+```
+
+We can also use multiple targets.
+
+```js
+until([ " ", "\n", "." ]) // returns "dolor"
+
+//                v  <= cursor moved here
+`Lorem ipsum dolor.`
+```
+
+Situation symbols can also be used with this method, except for `beginning`.
+
+```js
+until( ending ) // returns "."
+
+//                 v  <= cursor at the end
+`Lorem ipsum dolor.`
+```
+
+We can't use `beginning` because it's not meaningful with the `until` method, so you shouldn't use it.
+
+It's also possible to combine symbols, literal strings, and grouped character arrays like `space`, which means we can use nested arrays as well.
+
+```js
+// v  <= cursor is here
+`Lorem ipsum dolor.`
+
+until([ "m", space, [ "ip", [ "sum" ]], newline, endline, ending ]) // returns "re"
+
+//   v  <= cursor is here
+`Lorem ipsum dolor.`
+```
+
+The target array provided above will convert into a flattened array like `["m", "\n", "\r", ..., "ip", "sum", newline, endline, ending]`, and the `until` method will consume characters until it hits one of the targets.
 
 <!-- For example, `as` method will create a sub-ast node and put captured data by sequence into it and this sub node will be placed into component's ast node.
 
