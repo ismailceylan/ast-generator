@@ -5,12 +5,120 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style>
-		body { background-color: #222;}
-		#app { color: #fff }
+		body {
+			margin: 0;
+			background-color: #444;
+		}
+
+		main {
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#top-bar { 
+			background-color: #333;
+			padding: 5px;
+			color: #fff;
+			text-align: right;
+			font: 500 15px "Segoe UI";
+			flex-shrink: 0;
+			flex-grow: 0;
+		}
+
+		#content {
+			display: flex;
+			overflow: hidden;
+			height: 100%;
+		}
+
+		#editor {
+			background-color: #222;
+			color: #fff;
+			font-size: 17px;
+			padding: 15px;
+			width: 35%;
+			flex-shrink: 0;
+			flex-grow: 0;
+			outline: 0;
+			border: 0;
+			resize: none;
+		}
+
+		#preview {
+			display: flex;
+			flex-direction: column;
+			flex: 100%;
+		}
+
+		#ast {
+			white-space: pre-wrap;
+			color: #fff;
+			font: 100 17px monospace;
+			overflow: hidden;
+			flex: 100%;
+			padding: 15px;
+			overflow-y: auto;
+		}
+
+		#html {
+			border-top: 4px solid #aaa;
+			flex: 100%;
+			padding: 15px;
+			font: 500 17px/34px "Segoe UI";
+			color: #bbb;
+			white-space: pre-wrap;
+			overflow: hidden;
+			overflow-y: auto;
+		}
+
+		#html a {
+			color: steelblue;
+		}
+
+		#html code {
+			display: inline-block;
+			width: 97%;
+			background-color: #ffffff18;
+			color: #fff;
+			padding: 10px 15px;
+			border-radius: 8px;
+			white-space: pre-wrap;
+			margin: 5px 0;
+		}
+
+		#html code.inline {
+			display: inline;
+			border: 0;
+			padding: 5px 10px;
+			border-radius: 5px;
+			background-color: #333;
+		}
+
+		#html
+		{
+			h1,h2,h3,h4,h5,h6 {
+				display: inline-block;
+				margin: 0;
+				border-bottom: 2px solid #ffffff0f;
+				width: 100%;
+				padding-bottom: 5px;
+				margin-bottom: 5px;
+			}
+		}
 	</style>
 </head>
 <body>
-	<div id="app"></div>
+	<main>
+		<div id="top-bar"></div>
+		<aside id="content">
+			<textarea id="editor"></textarea>
+			<div id="preview">
+				<div id="ast"></div>
+				<div id="html"></div>
+			</div>
+		</aside>
+	</main>
 	<script type="module" src="demo.js"></script>
 </body>
 </html>
