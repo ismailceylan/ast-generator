@@ -7,7 +7,7 @@
 	<style>
 		body {
 			margin: 0;
-			background-color: #444;
+			background-color: #252525;
 		}
 
 		main {
@@ -17,7 +17,7 @@
 		}
 
 		#top-bar { 
-			background-color: #333;
+			background-color: #151515;
 			padding: 5px;
 			color: #fff;
 			text-align: right;
@@ -59,51 +59,128 @@
 			flex: 100%;
 			padding: 15px;
 			overflow-y: auto;
-		}
+			border-bottom: 1px solid #000;
+			background-color: #2e2e2e;
 
-		#html {
-			border-top: 4px solid #aaa;
-			flex: 100%;
-			padding: 15px;
-			font: 500 17px/34px "Segoe UI";
-			color: #bbb;
-			white-space: pre-wrap;
-			overflow: hidden;
-			overflow-y: auto;
-		}
-
-		#html a {
-			color: steelblue;
-		}
-
-		#html code {
-			display: inline-block;
-			width: 97%;
-			background-color: #ffffff18;
-			color: #fff;
-			padding: 10px 15px;
-			border-radius: 8px;
-			white-space: pre-wrap;
-			margin: 5px 0;
-		}
-
-		#html code.inline {
-			display: inline;
-			border: 0;
-			padding: 5px 10px;
-			border-radius: 5px;
-			background-color: #333;
+			&:hover {
+				flex: 2750%;
+			}
 		}
 
 		#html
 		{
+			border-top: 1px solid #494949;
+			flex: 700%;
+			padding: 15px;
+			font: 500 19px/34px "Segoe UI";
+			color: #bbb;
+			overflow: hidden;
+			overflow-y: auto;
+			background-color: #1a1a1a;
+			white-space: pre-wrap;
+
+			a {
+				color: #1feb0a;
+				text-decoration: none;
+			}
+			
+			a:hover {
+				text-decoration: underline;
+			}
+
+			code {
+				display: inline-block;
+				width: 97%;
+				background-color: #ffffff18;
+				color: #fff;
+				padding: 10px 15px;
+				border-radius: 8px;
+				white-space: pre-wrap;
+				margin: 5px 0;
+			}
+
+			code lang {
+				background-color: #7c7c7c;
+				color: #000;
+				font: 500 17px "Segoe UI";
+				padding: 2px 10px 3px;
+				border-radius: 24px;
+				margin-right: 10px;
+			}
+
+			code.inline {
+				display: inline;
+				border: 0;
+				padding: 5px 10px;
+				border-radius: 5px;
+				background-color: #333;
+			}
+
 			h1,h2,h3,h4,h5,h6 {
 				display: inline-block;
 				margin: 0;
-				border-bottom: 2px solid #ffffff0f;
+				border-bottom: 2px solid #ffffff17;
+				color: #fff;
 				width: 100%;
 				padding-bottom: 5px;
 				margin-bottom: 5px;
+			}
+
+			img {
+				display: block;
+				border-radius: 6px;
+				margin-block: 6px;
+				margin-inline: auto;
+			}
+
+			p {
+				white-space: pre-wrap;
+			}
+
+			hr {
+				all: initial;
+				height: 2px;
+				background-color: #ffffff17;
+				display: inline-block;
+				margin-block: 6px;
+				width: 100%;
+			}
+
+			mark {
+				background-color: #ffb10047;
+				padding: 1px 12px;
+				border-radius: 18px;
+				color: #fffc;
+			}
+
+			del {
+				text-decoration-color: #ff8f00;
+        		text-decoration-thickness: 2px;
+				opacity: 0.4;
+			}
+
+			blockquote {
+				background-color: #2a2a2a;
+				padding: 15px;
+				border-radius: 8px;
+				margin: 0;
+				display: inline-block;
+				width: -webkit-fill-available;
+			}
+
+			blockquote cite {
+				display: block;
+        		text-align: right;
+			}
+
+			blockquote cite::before {
+				content: "— ";
+			}
+
+			blockquote blockquote {
+				border: dashed 2px;
+				margin-block: 15px 10px;
+				opacity: 0.4;
 			}
 		}
 	</style>
@@ -112,7 +189,10 @@
 	<main>
 		<div id="top-bar"></div>
 		<aside id="content">
-			<textarea id="editor"></textarea>
+			<textarea id="editor">* foo
+* bar
+    * mooo
+* hahahah</textarea>
 			<div id="preview">
 				<div id="ast"></div>
 				<div id="html"></div>

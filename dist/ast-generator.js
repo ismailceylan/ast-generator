@@ -1,7 +1,7 @@
-var b = Object.defineProperty;
-var S = (n, e, t) => e in n ? b(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
-var u = (n, e, t) => S(n, typeof e != "symbol" ? e + "" : e, t);
-class y {
+var y = Object.defineProperty;
+var b = (n, e, t) => e in n ? y(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
+var u = (n, e, t) => b(n, typeof e != "symbol" ? e + "" : e, t);
+class x {
   /**
    * Initialize the stream.
    * 
@@ -273,12 +273,12 @@ class y {
   consume(e) {
     let t;
     const s = this.cursor;
-    for (Array.isArray(e) || (e = [e]); (t = e.findIndex((o) => this.matches(o))) > -1; )
+    for (Array.isArray(e) || (e = [e]); (t = e.findIndex((i) => this.matches(i))) > -1; )
       this.move(e[t].length);
     return this.raw.slice(s, this.cursor);
   }
 }
-const M = [
+const C = [
   " ",
   "	",
   `
@@ -305,7 +305,7 @@ const M = [
   " ",
   "　",
   "\uFEFF"
-], i = Symbol("failed"), f = Symbol("newline"), p = Symbol("endline"), d = Symbol("beginning"), l = Symbol("ending");
+], o = Symbol("failed"), k = Symbol("skipped"), l = Symbol("newline"), p = Symbol("endline"), d = Symbol("beginning"), f = Symbol("ending");
 class N {
   constructor() {
     /**
@@ -369,14 +369,14 @@ class T extends Array {
    * @param {AsciiByteStream} stream - The stream to get the current value from.
    * @param {number} offset - The offset to add to the current cursor position.
    */
-  appendToLatestTextNode(t, s, o) {
+  appendToLatestTextNode(t, s, i) {
     if (t === void 0)
       return;
     const r = this.at(-1);
     if ((r == null ? void 0 : r.name) === "text")
       r.value = r.value + t, r.end = r.end + t.length, this.checkpointMonitor.push([r, t]);
     else {
-      const h = new N().name("text").set("value", t).starts(o + s.cursor).ends(o + s.cursor + t.length - 1).flush();
+      const h = new N().name("text").set("value", t).starts(i + s.cursor).ends(i + s.cursor + t.length - 1).flush();
       this.push(h), this.checkpointMonitor.push([h, s.current]);
     }
   }
@@ -391,10 +391,10 @@ class T extends Array {
   createCheckpoint() {
     const t = this.checkpointMonitor.length;
     function s() {
-      const o = this.checkpointMonitor.slice(Math.max(t, 0));
-      for (const [r, h] of o) {
-        const c = r.value.lastIndexOf(h), w = r.value.slice(0, c), m = r.value.slice(c + 1);
-        r.value = w + m, r.end -= h.length;
+      const i = this.checkpointMonitor.slice(Math.max(t, 0));
+      for (const [r, h] of i) {
+        const c = r.value.lastIndexOf(h), m = r.value.slice(0, c), w = r.value.slice(c + 1);
+        r.value = m + w, r.end -= h.length;
       }
       this.checkpointMonitor.length = t;
     }
@@ -491,7 +491,60 @@ class a {
    * @returns {SequenceHandlerReturnTypes} The result of calling the handler with the payload.
    */
   run(e) {
-    return Object.assign(this, e), this.result = this.handler.call(this, e), this.setupSubNode(), this.setScope(this.result), this.result;
+    Object.assign(this, e);
+    const t = this.stream.current;
+    if (this.checkConditions() ? (this.result = this.handler.call(this, e), this.setupSubNode(), this.setScope(this.result)) : this.result = k, this.shouldLog) {
+      const s = this.handler.name, { componentName: i, sequenceIndex: r } = e;
+      console.group(
+        i + ">[" + (r + 1) + "]" + s + "(" + JSON.stringify(
+          this.target,
+          (h, c) => typeof c == "symbol" ? c.toString().replace(/Symbol\((.*)\)/, "$1") : c
+        ) + ") => " + JSON.stringify(t)
+      ), console.log(this.result), console.groupEnd();
+    }
+    return this.result;
+  }
+  /**
+   * Marks the function to enable logging and returns the current object.
+   *
+   * @returns {this}
+   */
+  log() {
+    return this.shouldLog = !0, this;
+  }
+  /**
+   * Adds an if statement that checks if the given scopeName equals the
+   * given scopeVal on the current scope.
+   *
+   * @overload
+   * @param {string} scopeName - The name of the scope.
+   * @param {any} scopeVal - The value of the scope.
+   * @returns {this} The current object.
+   */
+  /**
+  * Adds given callback into the condition stack. The callback will 
+  * receive the current scope on it can performs what it wants and
+  * after that it should return true or false.
+  * 
+  * @overload
+  * @param {function} cback 
+  * @returns {this}
+  */
+  if() {
+    return this.conditionStack || (this.conditionStack = []), typeof arguments[0] == "function" ? this.conditionStack.push(arguments[0]) : arguments.length === 2 && typeof arguments[0] == "string" && arguments[1] !== void 0 && this.conditionStack.push(({ scope: e }) => Array.isArray(arguments[1]) ? arguments[1].includes(e[arguments[0]]) : e[arguments[0]] === arguments[1]), this;
+  }
+  /**
+   * Checks the conditions in the condition stack against the
+   * given scope.
+   *
+   * @returns {boolean} Returns true if all conditions in the stack
+   * are true, otherwise false.
+   */
+  checkConditions() {
+    return (this.conditionStack || []).reduce(
+      (e, t) => e && t(this),
+      !0
+    );
   }
   /**
    * Assigns the given value to the scope using the sequence name as the key.
@@ -513,8 +566,8 @@ class a {
    */
   setupSubNode(e) {
     if (this.astNodeName && !(this.astNodeName in this.astNode.node)) {
-      e = e || this.target;
-      const t = new N().set("value", e).starts(this.offset + this.cursor).ends(this.offset + this.cursor + e.length - 1).flush();
+      e = e || this.result || "";
+      const t = new N().set("value", e).starts(this.offset + this.cursor).ends(this.offset + this.cursor + ((e == null ? void 0 : e.length) || 1) - 1).flush();
       this.astNode.set(this.astNodeName, t);
     }
     return e;
@@ -536,21 +589,11 @@ class a {
    */
   as(e) {
     if (["start", "end", "name"].includes(e))
-      throw new ReferenceError(`The name "${e}" is reserved.`);
+      throw new ReferenceError(`The word "${e}" is reserved.`);
     return this.astNodeName = e, this;
   }
-  text() {
-    const e = (() => {
-      if (this.result === f)
-        return `
-`;
-      if (typeof this.result == "string")
-        return this.result;
-    })();
-    return e === void 0 ? this : (this.nodes.appendToLatestTextNode(e, this.stream, this.offset), this);
-  }
 }
-class k {
+class q {
   /**
    * Constructor for initializing the component with a structure.
    *
@@ -587,25 +630,27 @@ class k {
    */
   run({ stream: e, nodes: t, offset: s }) {
     if (this.sequences.length === 0)
-      return i;
-    const { name: o } = this, r = new N(), h = e.startTransaction(), c = t.createCheckpoint(), w = {};
-    r.name(o).starts(s + e.cursor);
-    for (const m of this.sequences) {
-      const x = {
-        scope: w,
+      return o;
+    const { name: i } = this, r = new N(), h = e.startTransaction(), c = t.createCheckpoint(), m = {};
+    r.name(i).starts(s + e.cursor);
+    for (const [w, S] of this.sequences.entries()) {
+      const g = {
+        scope: m,
         stream: e,
         astNode: r,
         nodes: t,
         offset: s,
-        cursor: e.cursor
+        cursor: e.cursor,
+        componentName: i,
+        sequenceIndex: w
       };
-      if (m.run(x) === i)
-        return h(), c(), r.flush(), i;
+      if (S.run(g) === o)
+        return h(), c(), r.flush(), o;
     }
     return r.ends(Math.max(s + e.cursor - 1, r.node.start || 0)).flush();
   }
 }
-class g {
+class I {
   /**
    * Constructs a new instance of the Parser class.
    *
@@ -635,9 +680,9 @@ class g {
    * @returns {NodeStack} The abstract syntax tree represented as a NodeStack.
    */
   parse(e) {
-    const t = new T(), s = new y(e);
+    const t = new T(), s = new x(e);
     for (; s.current !== void 0; ) {
-      let o = !1;
+      let i = !1;
       for (const r of this.components) {
         const h = s.cursor, c = r.run(
           {
@@ -646,17 +691,17 @@ class g {
             offset: this.offset
           }
         );
-        if (c !== i) {
-          o = !0, t.push(c), h === s.cursor && (t.appendToLatestTextNode(s.current, s, this.offset), s.next);
+        if (c !== o) {
+          i = !0, t.push(c), h === s.cursor && (t.appendToLatestTextNode(s.current, s, this.offset), s.next);
           break;
         }
       }
-      o || (t.appendToLatestTextNode(s.current, s, this.offset), s.next);
+      i || (t.appendToLatestTextNode(s.current, s, this.offset), s.next);
     }
     return t.checkpointMonitor.length = 0, t;
   }
 }
-function v(n, e) {
+function A(n, e) {
   return Object.defineProperty(
     n,
     Symbol.toStringTag,
@@ -664,78 +709,79 @@ function v(n, e) {
   ), n;
 }
 function L(n, e) {
-  return v(new k(n), "comp<" + n + ">").structure(e);
+  return A(new q(n), "comp<" + n + ">").structure(e);
 }
 function j(n) {
   return new a(n, function({ stream: t }) {
-    return n === f ? t.matches(`
-`) || t.cursor === 0 ? i : !0 : n === d ? t.cursor === 0 ? i : !0 : n === l ? t.cursor >= t.raw.length - 1 ? i : !0 : !t.matches(n) || i;
-  });
-}
-function A(n) {
-  return new a(n, function({ stream: t }) {
-    if (Array.isArray(n)) {
-      for (const s of n) {
-        const o = A(s).run(...arguments);
-        if (o !== i)
-          return o;
-      }
-      return i;
-    }
-    return n === f ? t.matches(`
-`) ? n : i : n === p ? t.after(`
-`) ? n : i : n === d ? t.cursor === 0 ? d : i : n === l ? t.cursor >= t.raw.length - 1 ? l : i : t.matches(n) || i;
-  });
-}
-function C(n) {
-  return new a(n, function({ stream: t, offset: s, nodes: o, astNode: r }) {
-    return t.matches(n) ? (o.appendToLatestTextNode(n, t, s), t.move(n.length), r.shift(n.length), !0) : i;
+    return n === l ? t.matches(`
+`) || t.cursor === 0 ? o : !0 : n === d ? t.cursor === 0 ? o : !0 : n === f ? t.cursor >= t.raw.length - 1 ? o : !0 : !t.matches(n) || o;
   });
 }
 function O(n) {
-  return new a(n, e);
-  function e({ stream: t }) {
+  return new a(n, function({ stream: t }) {
+    if (Array.isArray(n)) {
+      for (const s of n) {
+        const i = O(s).run(...arguments);
+        if (i !== o)
+          return i;
+      }
+      return o;
+    }
+    return n === l ? t.before(`
+`) ? n : o : n === p ? t.after(`
+`) ? n : o : n === d ? t.cursor === 0 ? d : o : n === f ? t.cursor >= t.raw.length - 1 ? f : o : t.matches(n) || o;
+  });
+}
+function $(n) {
+  return new a(n, function({ stream: t, offset: s, nodes: i, astNode: r }) {
+    const h = n === l ? `
+` : n;
+    return t.matches(h) ? (i.appendToLatestTextNode(h, t, s), t.move(h.length), r.shift(h.length), !0) : o;
+  });
+}
+function M(n) {
+  return new a(n, function({ stream: t }) {
     if (Array.isArray(n)) {
       for (const s of n)
-        if (O(s).run(...arguments) !== i)
+        if (M(s).run(...arguments) !== o)
           return s;
-      return i;
+      return o;
     }
-    if (n === f)
-      return t.matches(`
-`) ? (t.move(1), n) : i;
+    if (n === l)
+      return t.before(`
+`) ? (t.move(1), n) : o;
     if (n === p) {
       if (t.after(`
 `))
         return t.move(1), n;
     } else {
       if (n === d)
-        return t.cursor === 0 ? d : i;
-      if (n === l)
-        return t.cursor >= t.raw.length - 1 ? l : i;
+        return t.cursor === 0 ? d : o;
+      if (n === f)
+        return t.cursor >= t.raw.length - 1 ? f : o;
       if (t.matches(n))
         return t.move(n.length), !0;
     }
-    return i;
-  }
+    return o;
+  });
 }
-function I(n) {
+function E(n) {
   return new a(n, function({ stream: t }) {
     const s = (() => {
       if (Array.isArray(n)) {
-        let o = function(c) {
-          return c === p || c === f ? `
-` : c === l ? t.raw[t.length - 1] : c === d ? "" : Array.isArray(c) ? c.map(o) : c;
+        let i = function(c) {
+          return c === p || c === l ? `
+` : c === f ? t.raw[t.length - 1] : c === d ? "" : Array.isArray(c) ? c.map(i) : c;
         };
-        const r = n.map(o).flat(), h = t.closest(r);
+        const r = n.map(i).flat(), h = t.closest(r);
         return h.length === 0 ? void 0 : t.slice(h[0][1] + 1);
-      } else if (n === p || n === f) {
-        const o = t.getUntil(`
+      } else if (n === p || n === l) {
+        const i = t.getUntil(`
 `);
-        return o === void 0 ? t.slice(t.raw.length - t.cursor) : o;
-      } else return n === l ? t.slice(t.raw.length - t.cursor) : t.getUntil(n);
+        return i === void 0 ? t.slice(t.raw.length - t.cursor) : i;
+      } else return n === f ? t.slice(t.raw.length - t.cursor) : t.getUntil(n);
     })();
-    return s === void 0 ? i : this.setupSubNode(s);
+    return s === void 0 ? o : this.setupSubNode(s);
   });
 }
 function F(n) {
@@ -744,18 +790,19 @@ function F(n) {
   });
 }
 export {
-  g as Parser,
+  I as Parser,
   d as beginning,
   L as component,
   F as consume,
-  l as ending,
+  f as ending,
   p as endline,
-  O as exact,
-  i as failed,
-  A as match,
-  f as newline,
+  M as exact,
+  o as failed,
+  O as match,
+  l as newline,
   j as not,
-  M as space,
-  C as text,
-  I as until
+  k as skipped,
+  C as space,
+  $ as text,
+  E as until
 };

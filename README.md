@@ -90,16 +90,33 @@ Represents the start of the document. In our designed system, this corresponds t
 Represents the end of the document, which is the last character. This means there are no more characters to process, and the last character has been processed. To tell a sequence to go to the end of the stream or check if it is at the end, we will simply pass this symbol.
 
 ### newline
-Matches the beginning of a line. In other words, the cursor points to a `\n` character. Giving this symbol or the `\n` character to a sequence serves the same purpose.
+Matches a new line. In other words, the cursor is at the first character of a line. So, that means the previous character before the cursor is `\n` symbol.
 
 ### endline
-Matches the end of a line. However, unlike the `newline` symbol, it does not match with `\n`. For example, the cursor is on the `x` character, and the next byte is a `\n` character. This situation is interpreted as the end of a line. If this irrelevant character is skipped, the cursor moves to the `\n` character. At this stage, if another sequence is targeting the `newline` symbol for matching, it will also succeed. In summary, it indicates that the cursor is pointing to the last character of a line.
+Matches the end of a line. For example, the cursor is on the `b` character, and the next byte is a `\n` character. This situation is interpreted as the end of a line. If this irrelevant character is skipped, the cursor moves to the `\n` character. In summary, it indicates that the cursor is pointing to the last character of a line.
 
 ### space
 A constant array holding all known whitespace characters. These characters are `[ " ", "\t", "\n", "\r", "\f", "\v", "\u00a0", "\u1680", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005", "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u2028", "\u2029", "\u202f", "\u205f", "\u3000", "\ufeff" ]`. It serves the same function as the known `\s` expression in regular expressions.
 
 ### failed
 This symbol is returned and also placed on the scope when sequences fail to fulfill their committed tasks. For example, if a sequence declares that it will activate when the preceding sequence fails, we can use the expression `until(target).is("beforeName", failed)`.
+
+## Designing Components
+As we mentioned above components are sequence encapsulators. We can give components to some shape to make them more flexible.
+
+This is how we basically define a component.
+
+```js
+[
+	component( 'VariableDefinition',[
+		exact([ "var", "let", "const" ]).as( "type" ),
+		exact( space ).optional(),
+		until( "=" ).as( "name" ),
+		exact( "=" ),
+		until([ ",", ";" ]).as( "value" ),
+	]),
+]
+```
 
 ## Sequence Methods
 There are many sequence methods to handle different kinds of scenarios. Let's see them in detail.
@@ -243,7 +260,7 @@ With this, we can ensure that we capture all the data until any kind of space, i
 We can also use multiple targets.
 
 ```js
-until([ " ", "\n", "." ]) // returns "dolor"
+until([ " ", "\n", "." ]) // returns " dolor"
 
 //                v  <= cursor moved here
 `Lorem ipsum dolor.`
@@ -281,4 +298,3 @@ The target array provided above will convert into a flattened array like `["m", 
 `if` or `is` modifiers will keep conditional expressions for the sequence. Before the sequence do its stuff, conditions will be executed and either the sequence will be executed or not. Ofcourse conditions will access the scope provided by component. So that means sequence can access preceded sequence results and make themselves dependant on them.
 
 Sequences can be also optional. If a sequence failed to do what it said it would do, we can ignore it by `optional` method. It works like an alias of `if` or `is` modifier but conditionals works before the sequence and can't know what the state of the sequence is but optional will know the state. -->
-
